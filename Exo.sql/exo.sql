@@ -592,7 +592,12 @@ Colonnes à afficher :
 | prenom     |
 +------------+
 
-Requête :
+Requête : SELECT p1.prenom 
+          FROM patient p1
+          JOIN association_patient_chambre apc ON p1.id_patient = apc.id_patient
+          JOIN personnel p2 ON p1.prenom = p2.prenom
+          WHERE apc.date_entree <= CURDATE() AND apc.date_sortie >= CURDATE();
+
 
 
 34. Affichez les noms des services et le nombre de chambres vides qu ils ont.
@@ -601,7 +606,13 @@ Colonnes à afficher :
 | nom        | chambres_vides  |
 +------------+-----------------+
 
-Requête :
+Requête : SELECT s.nom, COUNT(c.id_chambre) AS chambres_vides
+          FROM service s
+          JOIN chambre c ON s.id_service = c.id_service
+          LEFT JOIN association_patient_chambre apc ON c.id_chambre = apc.id_chambre
+          WHERE apc.id_chambre IS NULL
+          GROUP BY s.nom;
+
 
 
 35. Affichez les prénoms des patients et le nombre de jours passés dans l hôpital.
@@ -610,7 +621,11 @@ Colonnes à afficher :
 | prenom     | jours_a_l_hopital     |
 +------------+-----------------------+
 
-Requête :
+Requête : SELECT p.prenom, SUM(DATEDIFF(apc.date_sortie, apc.date_entree)) AS jours_a_l_hopital
+          FROM patient p
+          JOIN association_patient_chambre apc ON p.id_patient = apc.id_patient
+          GROUP BY p.prenom;
+
 
 
 36. Affichez les noms des services et le nombre total de jours de séjour des patients dans ces services.
@@ -619,7 +634,12 @@ Colonnes à afficher :
 | nom        | jours_total       |
 +------------+-------------------+
 
-Requête :
+Requête : SELECT s.nom, SUM(DATEDIFF(apc.date_sortie, apc.date_entree)) AS jours_total
+          FROM service s
+          JOIN chambre c ON s.id_service = c.id_service
+          JOIN association_patient_chambre apc ON c.id_chambre = apc.id_chambre
+          GROUP BY s.nom;
+
 
 
 37. Affichez les prénoms des patients qui ont séjourné dans la chambre n°10 plus de deux fois.
@@ -628,7 +648,13 @@ Colonnes à afficher :
 | prenom     |
 +------------+
 
-Requête :
+Requête : SELECT p.prenom 
+          FROM patient p
+          JOIN association_patient_chambre apc ON p.id_patient = apc.id_patient
+          WHERE apc.id_chambre = 10
+          GROUP BY p.prenom
+          HAVING COUNT(apc.id_chambre) > 2;
+
 
 
 38. Affichez les prénoms des patients qui ont séjourné dans des chambres du service "reanimation".
